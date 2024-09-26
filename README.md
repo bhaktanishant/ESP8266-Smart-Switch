@@ -67,14 +67,8 @@ License
 -------
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-Acknowledgments
----------------
-
-*   Thanks to the open-source community for providing resources and libraries that made this project possible.
     
 
 Contributing
 ------------
 Feel free to submit issues, fork the repository, or submit pull requests. Contributions are welcome!
-
