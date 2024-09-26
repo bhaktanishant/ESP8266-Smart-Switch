@@ -1,8 +1,8 @@
 #include <ESP8266WiFi.h>
 #include <EEPROM.h>
 
-const char* ssid = "Nothing Phone (2a)_6332";
-const char* password = "nahi pata";
+const char* ssid = "ESP8266_Hotspot"; // Hotspot name
+const char* password = ""; // No password
 
 const int relayPin = D4; // Pin to which relay is connected
 
@@ -18,7 +18,6 @@ void handleOn();
 void handleOff();
 void saveState();
 void checkPowerOnCount();
-void reconnectWiFi(); // Function to reconnect to Wi-Fi
 
 void setup() {
     Serial.begin(115200);
@@ -35,17 +34,18 @@ void setup() {
 
     // Restore powerOnCount from EEPROM
     powerOnCount = EEPROM.read(powerOnCountAddress);
-
-    // Increment powerOnCount each time the ESP is powered on
-    powerOnCount++;
+    powerOnCount++; // Increment powerOnCount
     EEPROM.write(powerOnCountAddress, powerOnCount); // Save updated count to EEPROM
     EEPROM.commit(); // Commit changes
 
     // Check if the power-on limit has been reached
     checkPowerOnCount(); 
 
-    // Connect to Wi-Fi
-    reconnectWiFi(); // Call the reconnect function
+    // Set up Wi-Fi hotspot
+    WiFi.softAP(ssid, password);
+    Serial.println("Hotspot started");
+    Serial.print("IP address: ");
+    Serial.println(WiFi.softAPIP());
 
     // Start server
     server.begin();
@@ -53,34 +53,11 @@ void setup() {
 }
 
 void loop() {
-    if (WiFi.status() != WL_CONNECTED) {
-        reconnectWiFi(); // Call reconnect function if disconnected
-    }
-    
     handleClient(); // Handle client requests
 }
 
-void reconnectWiFi() {
-    Serial.print("Connecting to WiFi...");
-    WiFi.begin(ssid, password);
-    unsigned long startAttemptTime = millis();
-
-    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 15000) {
-        delay(500);
-        Serial.print(".");
-    }
-
-    if (WiFi.status() == WL_CONNECTED) {
-        Serial.println("\nConnected to WiFi");
-        Serial.print("IP address: ");
-        Serial.println(WiFi.localIP());
-    } else {
-        Serial.println("\nFailed to connect to WiFi. Retrying...");
-    }
-}
-
 void handleClient() {
-    WiFiClient client = server.available(); // Changed to available()
+    WiFiClient client = server.available(); // Check for client
     if (client) {
         Serial.println("New client");
 
@@ -111,15 +88,14 @@ void handleClient() {
             html += "<html>";
             html += "<head>";
             html += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">";
-            html += "<style>";
-            html += "body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }";
-            html += ".switch { position: relative; display: inline-block; width: 60px; height: 34px; }";
-            html += ".switch input { opacity: 0; width: 0; height: 0; }";
-            html += ".slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }";
-            html += ".slider:before { position: absolute; content: ''; height: 26px; width: 26px; border-radius: 50%; left: 4px; bottom: 4px; background-color: white; transition: .4s; }";
-            html += "input:checked + .slider { background-color: #4CAF50; }";
-            html += "input:checked + .slider:before { transform: translateX(26px); }";
-            html += "</style>";
+            html += "<style>body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }</style>";
+            html += "</head>";
+            html += "<body>";
+            html += "<h2>Smart Switch</h2>";
+            html += "<label class='switch'>";
+            html += "  <input type='checkbox' id='relayToggle' onclick='toggleRelay()' " + String(relayState ? "checked" : "") + ">";
+            html += "  <span class='slider'></span>";
+            html += "</label>";
             html += "<script>";
             html += "function toggleRelay() {";
             html += "  var xhttp = new XMLHttpRequest();";
@@ -128,13 +104,6 @@ void handleClient() {
             html += "  xhttp.send();";
             html += "}";
             html += "</script>";
-            html += "</head>";
-            html += "<body>";
-            html += "<h2>Smart Switch</h2>";
-            html += "<label class='switch'>";
-            html += "  <input type='checkbox' id='relayToggle' onclick='toggleRelay()' " + String(relayState ? "checked" : "") + ">";
-            html += "  <span class='slider'></span>";
-            html += "</label>";
             html += "</body>";
             html += "</html>";
 
