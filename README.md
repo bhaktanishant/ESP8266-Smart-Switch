@@ -9,6 +9,8 @@ This project uses an ESP8266 microcontroller to create a smart switch that can c
 - **Persistent State**: Uses EEPROM to save the relay state and power-on count, ensuring the state is retained after power loss.
 - **User-Friendly Web Interface**: A responsive and clean HTML interface with instant feedback on relay status.
 - **Automatic Reconnection**: Automatically attempts to reconnect to Wi-Fi if the connection is lost.
+- **Reset Functionality**: Reset the ESP by powering it on and off five times, which will reset the power-on count and turn the relay ON.
+
 
 ## Requirements
 
