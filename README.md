@@ -22,7 +22,7 @@ This project allows you to control a relay as a smart switch using an ESP8266 mi
 
 1. **Clone the repository** or download the code:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/bhaktanishant/ESP8266-Smart-Switch.git
 
 2.  **Open the code in Arduino IDE or VS Code**.
     
