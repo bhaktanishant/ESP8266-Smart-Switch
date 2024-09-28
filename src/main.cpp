@@ -30,7 +30,7 @@ void setup() {
     if (relayState != 0 && relayState != 1) {
         relayState = 1; // Default to ON if EEPROM has invalid data
     }
-    digitalWrite(relayPin, relayState ? HIGH : LOW); // HIGH turns ON the relay
+    digitalWrite(relayPin, relayState ? LOW : HIGH); // HIGH turns ON the relay
 
     // Restore powerOnCount from EEPROM
     powerOnCount = EEPROM.read(powerOnCountAddress);
@@ -57,7 +57,7 @@ void loop() {
 }
 
 void handleClient() {
-    WiFiClient client = server.available(); // Check for client
+    WiFiClient client = server.accept(); // Check for client
     if (client) {
         Serial.println("New client");
 
@@ -118,7 +118,7 @@ void handleClient() {
 void handleOn() {
     Serial.println("Handling /on");
     if (!relayState) { // Only change state if it's currently off
-        digitalWrite(relayPin, HIGH); // Set to HIGH to turn ON the relay
+        digitalWrite(relayPin, LOW); // Set to HIGH to turn ON the relay
         relayState = true;
         saveState();
     }
@@ -127,7 +127,7 @@ void handleOn() {
 void handleOff() {
     Serial.println("Handling /off");
     if (relayState) { // Only change state if it's currently on
-        digitalWrite(relayPin, LOW); // Set to LOW to turn OFF the relay
+        digitalWrite(relayPin, HIGH); // Set to LOW to turn OFF the relay
         relayState = false;
         saveState();
     }
@@ -156,7 +156,7 @@ void checkPowerOnCount() {
         Serial.println("Power on limit reached. Resetting powerOnCount and turning relay ON...");
         powerOnCount = 0; // Reset the powerOnCount
         relayState = true; // Set relayState to ON
-        digitalWrite(relayPin, HIGH); // Turn the relay ON
+        digitalWrite(relayPin, LOW); // Turn the relay ON
         
         // Only write if there's a change
         if (EEPROM.read(powerOnCountAddress) != powerOnCount) {
